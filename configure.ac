@@ -10,7 +10,7 @@ m4_define([lt_cur], m4_eval(v_maj + v_min))
 m4_define([lt_rev], v_mic)
 m4_define([lt_age], v_min)
 
-AC_INIT([ender], [v_ver], [enesim-devel@googlegroups.com])
+AC_INIT([ender_js_sm], [v_ver], [enesim-devel@googlegroups.com])
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -36,8 +36,6 @@ AC_SUBST([VMAJ])
 AC_SUBST(ACLOCAL_AMFLAGS, "-I m4 -I common/m4")
 
 ### Additional options to configure
-
-EFL_WITH_BIN([ender], [ender-generator])
 
 ### default values
 
@@ -73,27 +71,20 @@ LT_SYS_MODULE_EXT
 
 ### Checks for libraries
 
-requirements_ender_pc="${requirements_ender_pc} eina >= 1.7.0 enesim >= 0.0.21 libffi"
-if test "x${have_win32}" = "xyes" ; then
-   requirements_ender_pc="${requirements_ender_pc} evil >= 1.7.0"
-fi
+requirements_ender_js_sm_pc="${requirements_ender_js_sm_pc} ender >= 0.0.8  mozjs185"
 
-PKG_CHECK_MODULES([REQUIREMENTS], [${requirements_ender_pc}])
-AC_SUBST([requirements_ender_pc])
+PKG_CHECK_MODULES([REQUIREMENTS], [${requirements_ender_js_sm_pc}])
+AC_SUBST([requirements_ender_js_sm_pc])
 
-ENDER_CFLAGS="${ENDER_CFLAGS} ${REQUIREMENTS_CFLAGS}"
-ENDER_LIBS="${REQUIREMENTS_LIBS}"
-AC_SUBST(ENDER_LIBS)
-
-### Checks for library functions
-
-EFL_CHECK_DLOPEN
+ENDER_JS_SM_CFLAGS="${ENDER_JS_SM_CFLAGS} ${REQUIREMENTS_CFLAGS}"
+ENDER_JS_SM_LIBS="${REQUIREMENTS_LIBS}"
+AC_SUBST(ENDER_JS_SM_CFLAGS)
+AC_SUBST(ENDER_JS_SM_LIBS)
 
 ## Make the debug preprocessor configurable
 
 AC_CONFIG_FILES([
 Makefile
-common/doc/Doxyfile_common
 ])
 
 AC_OUTPUT

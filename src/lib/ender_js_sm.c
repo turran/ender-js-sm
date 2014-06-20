@@ -75,24 +75,9 @@ int main(int argc, char **argv)
 	exit(EXIT_SUCCESS);
 }
 #endif
-/*----------------------------------------------------------------------------*
- *                          The script  interface                             *
- *----------------------------------------------------------------------------*/
-static Egueb_Svg_Script_Descriptor _descriptor = {
-
-};
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
-void egueb_svg_script_js_sm_init(void)
-{
-	egueb_svg_script_descriptor_register(&descriptor, "application/ecmascript");
-}
-
-void egueb_svg_script_js_sm_shutdown(void)
-{
-	egueb_svg_script_descriptor_unregister(&descriptor, "application/ecmascript");
-}
 /*============================================================================*
  *                                   API                                      *
  *============================================================================*/

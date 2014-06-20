@@ -26,14 +26,10 @@ EXTRA_DIST =
 
 include src/lib/Makefile.mk
 
-### Data
-
-include data/Makefile.mk
-
 EXTRA_DIST += \
 AUTHORS \
 COPYING \
 README.md \
-ender.pc.in \
+ender_js_sm.pc.in \
 m4/efl_dlfcn.m4 \
 m4/ens_doxygen.m4

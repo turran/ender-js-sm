@@ -15,55 +15,27 @@
  * License along with this library.
  * If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Ender_Js_Sm.h"
-#include "ender_js_sm_string_private.h"
 /*============================================================================*
  *                                  Local                                     *
  *============================================================================*/
-/*----------------------------------------------------------------------------*
- *                             Class definition                               *
- *----------------------------------------------------------------------------*/
-static JSBool _ender_js_sm_resolve(JSContext *cx, JSObject *obj, jsid id,
+/* TODO
+ * Store the lib on the private data
+ */
+static JSBool _ender_js_sm_lib_resolve(JSContext *cx, JSObject *obj, jsid id,
 		uintN flags, JSObject **objp)
 {
-	JSBool ret = JS_FALSE;
-	const Ender_Lib *lib
-	char *name;
 
-	/* initialize */
-	*objp = NULL;
-
-	if (!ender_js_sm_string_id_get(cx, id, &name))
-		return JS_FALSE;
-	if (!strcmp(name, "valueOf") ||
-		!strcmp(name, "toString") ||
-		!strcmp(name, "__iterator__"))
-		goto done;
-
-	/* do the load of the library */
-	JS_BeginRequest(cx);
-	/* TODO check what is the request on the flags */
-	lib = ender_lib_find(name);
-	if (lib)
-	{
-		/* create an object for a lib */
-	}
-	JS_EndRequest(cx);
-
-done:
-	free(name);
-	return ret;
 }
 
-static JSClass _ender_js_sm_class = {
-	/* .name  		= */ "ender_js_sm",
+static JSClass _ender_js_sm_class_lib = {
+	/* .name  		= */ "ender_js_sm_lib",
 	/* .flags 		= */ JSCLASS_NEW_RESOLVE | JSCLASS_NEW_RESOLVE_GETS_START,
 	/* .addProperty 	= */ JS_PropertyStub,
 	/* .delProperty 	= */ JS_PropertyStub,
 	/* .getProperty 	= */ JS_PropertyStub,
 	/* .setProperty 	= */ JS_StrictPropertyStub,
 	/* .enumarate 		= */ JS_EnumerateStub,
-	/* .resolve 		= */ (JSResolveOp) _ender_js_sm_resolve,
+	/* .resolve 		= */ (JSResolveOp) _ender_js_sm_lib_resolve,
 	/* .convert 		= */ JS_ConvertStub,
 	/* .finalize 		= */ NULL,
 	/* .reserved 		= */ NULL,
@@ -80,17 +52,4 @@ static JSClass _ender_js_sm_class = {
 /*============================================================================*
  *                                   API                                      *
  *============================================================================*/
-EAPI void ender_js_sm_init(void)
-{
-	ender_init();
-}
 
-EAPI void ender_js_sm_shutdown(void)
-{
-	ender_shutdown();
-}
-
-EAPI JSClass * ender_js_sm_class_get(void)
-{
-	return &_ender_js_sm_class;
-}

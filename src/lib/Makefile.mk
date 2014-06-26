@@ -6,7 +6,8 @@ dist_installed_headers_DATA = \
 src/lib/Ender_Js_Sm.h
 
 src_lib_libender_js_sm_la_SOURCES = \
-src/lib/ender_js_sm.c
+src/lib/ender_js_sm.c \
+src/lib/ender_js_sm_string.c
 
 src_lib_libender_js_sm_la_CPPFLAGS = \
 -I$(top_srcdir)/src/lib \

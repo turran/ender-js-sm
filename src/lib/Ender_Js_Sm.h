@@ -19,6 +19,38 @@
 #ifndef _ENDER_JS_SM_H_
 #define _ENDER_JS_SM_H_
 
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef ENDER_JS_SM_BUILD
+#  ifdef DLL_EXPORT
+#   define EAPI __declspec(dllexport)
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI __declspec(dllimport)
+# endif
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif
+
+
 #include <jsapi.h>
+#include <Ender.h>
+
+EAPI void ender_js_sm_init(void);
+EAPI void ender_js_sm_shutdown(void);
+EAPI JSClass * ender_js_sm_class_get(void);
 
 #endif

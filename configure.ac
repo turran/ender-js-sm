@@ -71,7 +71,7 @@ LT_SYS_MODULE_EXT
 
 ### Checks for libraries
 
-requirements_ender_js_sm_pc="${requirements_ender_js_sm_pc} ender >= 0.0.8  mozjs185"
+requirements_ender_js_sm_pc="${requirements_ender_js_sm_pc} ender >= 0.0.8  enesim >= 0.0.21 mozjs185"
 
 PKG_CHECK_MODULES([REQUIREMENTS], [${requirements_ender_js_sm_pc}])
 AC_SUBST([requirements_ender_js_sm_pc])

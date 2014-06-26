@@ -26,6 +26,10 @@ EXTRA_DIST =
 
 include src/lib/Makefile.mk
 
+### Binaries
+
+include src/bin/Makefile.mk
+
 EXTRA_DIST += \
 AUTHORS \
 COPYING \

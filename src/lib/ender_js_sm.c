@@ -17,6 +17,7 @@
  */
 #include "Ender_Js_Sm.h"
 #include "ender_js_sm_string_private.h"
+#include "ender_js_sm_lib_private.h"
 /*============================================================================*
  *                                  Local                                     *
  *============================================================================*/
@@ -27,7 +28,7 @@ static JSBool _ender_js_sm_resolve(JSContext *cx, JSObject *obj, jsid id,
 		uintN flags, JSObject **objp)
 {
 	JSBool ret = JS_FALSE;
-	const Ender_Lib *lib
+	const Ender_Lib *lib;
 	char *name;
 
 	/* initialize */
@@ -40,13 +41,20 @@ static JSBool _ender_js_sm_resolve(JSContext *cx, JSObject *obj, jsid id,
 		!strcmp(name, "__iterator__"))
 		goto done;
 
-	/* do the load of the library */
 	JS_BeginRequest(cx);
 	/* TODO check what is the request on the flags */
 	lib = ender_lib_find(name);
 	if (lib)
 	{
+		JSObject *olib;
+		jsval val;
+
 		/* create an object for a lib */
+		olib = ender_js_sm_lib_new(cx, obj, lib);
+		JS_DefinePropertyById(cx, obj, id, OBJECT_TO_JSVAL(olib), NULL,
+				NULL, JSPROP_READONLY | JSPROP_PERMANENT);
+		*objp = obj;
+		ret = JS_TRUE;
 	}
 	JS_EndRequest(cx);
 
@@ -77,6 +85,23 @@ static JSClass _ender_js_sm_class = {
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
+Eina_Bool ender_js_sm_item_create(JSContext *cx, JSObject *parent, Ender_Item *i)
+{
+	Ender_Item_Type type;
+	Eina_Bool ret = EINA_TRUE;
+
+	type = ender_item_type_get(i);
+	switch (type)
+	{
+		case ENDER_ITEM_TYPE_FUNCTION:
+		break;
+
+		default:
+		ret = EINA_FALSE;
+		break;
+	}
+	return ret;
+}
 /*============================================================================*
  *                                   API                                      *
  *============================================================================*/

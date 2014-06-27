@@ -15,6 +15,8 @@
  * License along with this library.
  * If not, see <http://www.gnu.org/licenses/>.
  */
+#include "Ender_Js_Sm.h"
+#include "ender_js_sm_string_private.h"
 /*============================================================================*
  *                                  Local                                     *
  *============================================================================*/
@@ -24,7 +26,42 @@
 static JSBool _ender_js_sm_lib_resolve(JSContext *cx, JSObject *obj, jsid id,
 		uintN flags, JSObject **objp)
 {
+	JSBool ret = JS_FALSE;
+	Ender_Item *item;
+	const Ender_Lib *lib;
+	char *name;
 
+	/* initialize */
+	*objp = NULL;
+
+	lib = JS_GetPrivate(cx, obj);
+	if (!lib) return JS_FALSE;
+
+	if (!ender_js_sm_string_id_get(cx, id, &name))
+		return JS_FALSE;
+
+	/* find the item, if not found, try to prepend the lib name */
+	item = ender_lib_item_find(lib, name);
+	if (!item)
+	{
+		const char *lib_name;
+		char *item_name;
+
+		lib_name = ender_lib_name_get(lib);
+		if (asprintf(&item_name, "%s.%s", lib_name, name) > 0)
+		{
+			item = ender_lib_item_find(lib, item_name);
+			free(item_name);
+		}
+	}
+
+	if (item)
+	{
+		printf("item found %s\n", ender_item_name_get(item));
+		ender_item_unref(item);
+	}
+	free(name);
+	return ret;
 }
 
 static JSClass _ender_js_sm_class_lib = {
@@ -49,6 +86,14 @@ static JSClass _ender_js_sm_class_lib = {
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
+JSObject * ender_js_sm_lib_new(JSContext *cx, JSObject *parent, const Ender_Lib *lib)
+{
+	JSObject *ret;
+
+	ret = JS_NewObject(cx, &_ender_js_sm_class_lib, NULL, parent);
+	JS_SetPrivate(cx, ret, (void *)lib);
+	return ret;
+}
 /*============================================================================*
  *                                   API                                      *
  *============================================================================*/

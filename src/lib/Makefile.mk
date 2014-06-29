@@ -6,6 +6,7 @@ dist_installed_headers_DATA = \
 src/lib/Ender_Js_Sm.h
 
 src_lib_libender_js_sm_la_SOURCES = \
+src/lib/ender_js_sm_private.h \
 src/lib/ender_js_sm.c \
 src/lib/ender_js_sm_lib.c \
 src/lib/ender_js_sm_lib_private.h \

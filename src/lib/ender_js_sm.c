@@ -16,6 +16,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 #include "Ender_Js_Sm.h"
+#include "ender_js_sm_private.h"
 #include "ender_js_sm_string_private.h"
 #include "ender_js_sm_lib_private.h"
 /*============================================================================*
@@ -40,6 +41,8 @@ static JSBool _ender_js_sm_resolve(JSContext *cx, JSObject *obj, jsid id,
 		!strcmp(name, "toString") ||
 		!strcmp(name, "__iterator__"))
 		goto done;
+
+	DBG("Resolving lib '%s'", name);
 
 	JS_BeginRequest(cx);
 	/* TODO check what is the request on the flags */
@@ -85,6 +88,8 @@ static JSClass _ender_js_sm_class = {
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
+int ender_js_sm_log = -1;
+
 Eina_Bool ender_js_sm_item_create(JSContext *cx, JSObject *parent, Ender_Item *i)
 {
 	Ender_Item_Type type;
@@ -108,10 +113,12 @@ Eina_Bool ender_js_sm_item_create(JSContext *cx, JSObject *parent, Ender_Item *i
 EAPI void ender_js_sm_init(void)
 {
 	ender_init();
+	ender_js_sm_log = eina_log_domain_register("ender-js-sm", NULL);
 }
 
 EAPI void ender_js_sm_shutdown(void)
 {
+	eina_log_domain_unregister(ender_js_sm_log);
 	ender_shutdown();
 }
 

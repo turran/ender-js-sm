@@ -19,6 +19,9 @@
 #ifndef _ENDER_JS_SM_PRIVATE_H
 #define _ENDER_JS_SM_PRIVATE_H
 
+#include <jsapi.h>
+#include <Ender.h>
+
 #define ERR(...) EINA_LOG_DOM_ERR(ender_js_sm_log, __VA_ARGS__)
 #define WRN(...) EINA_LOG_DOM_WARN(ender_js_sm_log, __VA_ARGS__)
 #define INF(...) EINA_LOG_DOM_INFO(ender_js_sm_log, __VA_ARGS__)

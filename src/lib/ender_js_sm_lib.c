@@ -15,20 +15,24 @@
  * License along with this library.
  * If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Ender_Js_Sm.h"
+#include "ender_js_sm_private.h"
+#include "ender_js_sm_item_private.h"
 #include "ender_js_sm_string_private.h"
 /*============================================================================*
  *                                  Local                                     *
  *============================================================================*/
+/*----------------------------------------------------------------------------*
+ *                             Class definition                               *
+ *----------------------------------------------------------------------------*/
 /* TODO
  * Store the lib on the private data
  */
-static JSBool _ender_js_sm_lib_resolve(JSContext *cx, JSObject *obj, jsid id,
+static JSBool _ender_js_sm_lib_class_resolve(JSContext *cx, JSObject *obj, jsid id,
 		uintN flags, JSObject **objp)
 {
 	JSBool ret = JS_FALSE;
-	Ender_Item *item;
 	const Ender_Lib *lib;
+	Ender_Item *item;
 	char *name;
 
 	/* initialize */
@@ -57,8 +61,15 @@ static JSBool _ender_js_sm_lib_resolve(JSContext *cx, JSObject *obj, jsid id,
 
 	if (item)
 	{
-		printf("item found %s\n", ender_item_name_get(item));
-		ender_item_unref(item);
+		JSObject *oi;
+
+		DBG("Item found '%s' when looking for '%s'", ender_item_name_get(item), name);
+		oi = ender_js_sm_item_create(cx, item);
+
+		JS_DefinePropertyById(cx, obj, id, OBJECT_TO_JSVAL(oi), NULL,
+				NULL, 0);
+		*objp = obj;
+		ret = JS_TRUE;
 	}
 	free(name);
 	return ret;
@@ -66,13 +77,13 @@ static JSBool _ender_js_sm_lib_resolve(JSContext *cx, JSObject *obj, jsid id,
 
 static JSClass _ender_js_sm_class_lib = {
 	/* .name  		= */ "ender_js_sm_lib",
-	/* .flags 		= */ JSCLASS_NEW_RESOLVE | JSCLASS_NEW_RESOLVE_GETS_START,
+	/* .flags 		= */ JSCLASS_HAS_PRIVATE | JSCLASS_NEW_RESOLVE | JSCLASS_NEW_RESOLVE_GETS_START,
 	/* .addProperty 	= */ JS_PropertyStub,
 	/* .delProperty 	= */ JS_PropertyStub,
 	/* .getProperty 	= */ JS_PropertyStub,
 	/* .setProperty 	= */ JS_StrictPropertyStub,
 	/* .enumarate 		= */ JS_EnumerateStub,
-	/* .resolve 		= */ (JSResolveOp) _ender_js_sm_lib_resolve,
+	/* .resolve 		= */ (JSResolveOp) _ender_js_sm_lib_class_resolve,
 	/* .convert 		= */ JS_ConvertStub,
 	/* .finalize 		= */ NULL,
 	/* .reserved 		= */ NULL,
@@ -86,11 +97,11 @@ static JSClass _ender_js_sm_class_lib = {
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
-JSObject * ender_js_sm_lib_new(JSContext *cx, JSObject *parent, const Ender_Lib *lib)
+JSObject * ender_js_sm_lib_new(JSContext *cx, const Ender_Lib *lib)
 {
 	JSObject *ret;
 
-	ret = JS_NewObject(cx, &_ender_js_sm_class_lib, NULL, parent);
+	ret = JS_NewObject(cx, &_ender_js_sm_class_lib, NULL, NULL);
 	JS_SetPrivate(cx, ret, (void *)lib);
 	return ret;
 }

@@ -15,9 +15,9 @@
  * License along with this library.
  * If not, see <http://www.gnu.org/licenses/>.
  */
-#include "Ender_Js_Sm.h"
 #include "ender_js_sm_private.h"
 #include "ender_js_sm_string_private.h"
+#include "ender_js_sm_function_private.h"
 #include "ender_js_sm_lib_private.h"
 /*============================================================================*
  *                                  Local                                     *
@@ -50,10 +50,9 @@ static JSBool _ender_js_sm_resolve(JSContext *cx, JSObject *obj, jsid id,
 	if (lib)
 	{
 		JSObject *olib;
-		jsval val;
 
 		/* create an object for a lib */
-		olib = ender_js_sm_lib_new(cx, obj, lib);
+		olib = ender_js_sm_lib_new(cx, lib);
 		JS_DefinePropertyById(cx, obj, id, OBJECT_TO_JSVAL(olib), NULL,
 				NULL, JSPROP_READONLY | JSPROP_PERMANENT);
 		*objp = obj;
@@ -89,24 +88,6 @@ static JSClass _ender_js_sm_class = {
  *                                 Global                                     *
  *============================================================================*/
 int ender_js_sm_log = -1;
-
-Eina_Bool ender_js_sm_item_create(JSContext *cx, JSObject *parent, Ender_Item *i)
-{
-	Ender_Item_Type type;
-	Eina_Bool ret = EINA_TRUE;
-
-	type = ender_item_type_get(i);
-	switch (type)
-	{
-		case ENDER_ITEM_TYPE_FUNCTION:
-		break;
-
-		default:
-		ret = EINA_FALSE;
-		break;
-	}
-	return ret;
-}
 /*============================================================================*
  *                                   API                                      *
  *============================================================================*/

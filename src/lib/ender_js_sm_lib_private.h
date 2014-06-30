@@ -19,6 +19,6 @@
 #ifndef _ENDER_JS_SM_LIB_PRIVATE_H_
 #define _ENDER_JS_SM_LIB_PRIVATE_H_
 
-JSObject * ender_js_sm_lib_new(JSContext *cx, JSObject *parent, const Ender_Lib *lib);
+JSObject * ender_js_sm_lib_new(JSContext *cx, const Ender_Lib *lib);
 
 #endif

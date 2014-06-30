@@ -9,6 +9,29 @@ static JSClass global_class =
 	JS_FinalizeStub, JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
+static JSBool js_print(JSContext *cx, uintN argc, jsval *vp)
+{
+	JSString* u16_txt;
+	unsigned int length;
+	char *txt;
+
+	if (!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "S", &u16_txt))
+		return JS_FALSE;
+
+	length = JS_GetStringEncodingLength(cx, u16_txt);
+	txt = alloca(sizeof(char) * (length + 1));
+	JS_EncodeStringToBuffer(u16_txt, txt, length);
+
+	printf("%.*s\n", length, txt);
+	return JS_TRUE;
+}
+
+static JSFunctionSpec global_functions[] =
+{
+    JS_FS("print", js_print, 1, 0),
+    JS_FS_END
+};
+
 static void help(void)
 {
 	printf("ender-js-sm-loader FILE.js\n");
@@ -69,12 +92,18 @@ int main(int argc, char **argv)
 	{
 		return -3;
 	}
+
+	if (!JS_DefineFunctions(cx, global, global_functions))
+	{
+	        return -4;
+	}
+
 	/* Populate the global object with the standard globals,
 	 * like Object and Array.
 	 */
 	if (!JS_InitStandardClasses(cx, global))
 	{
-		return -4;
+		return -5;
 	}
 
 	JS_DefineObject(cx, global, "ender", ender_js_sm_class_get(), NULL, JSPROP_PERMANENT | JSPROP_READONLY);

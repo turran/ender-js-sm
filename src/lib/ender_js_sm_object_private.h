@@ -19,6 +19,7 @@
 #ifndef _ENDER_JS_SM_OBJECT_PRIVATE_H_
 #define _ENDER_JS_SM_OBJECT_PRIVATE_H_
 
+void ender_js_sm_object_init(JSContext *cx, Ender_Item *i, void *o, jsval *val);
 JSObject * ender_js_sm_object_new(JSContext *cx, Ender_Item *i);
 
 #endif

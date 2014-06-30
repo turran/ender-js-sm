@@ -23,7 +23,7 @@
  *                                  Local                                     *
  *============================================================================*/
 /*----------------------------------------------------------------------------*
- *                             Class definition                               *
+ *                          Object Class definition                           *
  *----------------------------------------------------------------------------*/
 static void _ender_js_sm_object_class_finalize(JSContext *cx, JSObject *obj)
 {
@@ -117,7 +117,7 @@ static JSBool _ender_js_sm_object_class_resolve(JSContext *cx, JSObject *obj, js
 	return ret;
 }
 
-static JSClass _ender_js_sm_class_object = {
+static JSClass _ender_js_sm_object_class = {
 	/* .name  		= */ "ender_js_sm_object",
 	/* .flags 		= */ JSCLASS_HAS_PRIVATE | JSCLASS_NEW_RESOLVE | JSCLASS_NEW_RESOLVE_GETS_START,
 	/* .addProperty 	= */ JS_PropertyStub,
@@ -136,14 +136,71 @@ static JSClass _ender_js_sm_class_object = {
 	/* .hasInstance 	= */ NULL,
 	/* .trace 		= */ NULL,
 };
+
+/*----------------------------------------------------------------------------*
+ *                         Instance Class definition                          *
+ *----------------------------------------------------------------------------*/
+static void _ender_js_sm_instance_class_finalize(JSContext *cx, JSObject *obj)
+{
+	printf("finalize\n");
+}
+
+static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, jsid id,
+		uintN flags, JSObject **objp)
+{
+	JSBool ret = JS_FALSE;
+	jsid own_id;
+	char *name;
+	char *item_name;
+
+	/* initialize */
+	*objp = NULL;
+
+	printf("instance resolve\n");
+
+	if (!ender_js_sm_string_id_get(cx, id, &name))
+		return JS_FALSE;
+
+	ERR("Looking for %s", name);
+	free(name);
+	return ret;
+}
+
+static JSClass _ender_js_sm_instance_class = {
+	/* .name  		= */ "ender_js_sm_instance",
+	/* .flags 		= */ JSCLASS_HAS_PRIVATE | JSCLASS_NEW_RESOLVE | JSCLASS_NEW_RESOLVE_GETS_START,
+	/* .addProperty 	= */ JS_PropertyStub,
+	/* .delProperty 	= */ JS_PropertyStub,
+	/* .getProperty 	= */ JS_PropertyStub,
+	/* .setProperty 	= */ JS_StrictPropertyStub,
+	/* .enumarate 		= */ JS_EnumerateStub,
+	/* .resolve 		= */ (JSResolveOp) _ender_js_sm_instance_class_resolve,
+	/* .convert 		= */ JS_ConvertStub,
+	/* .finalize 		= */ _ender_js_sm_instance_class_finalize,
+	/* .reserved 		= */ NULL,
+	/* .checkAccess		= */ NULL,
+	/* .call 		= */ NULL,
+	/* .construct 		= */ NULL,
+	/* .xdrObject		= */ NULL,
+	/* .hasInstance 	= */ NULL,
+	/* .trace 		= */ NULL,
+};
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
+void ender_js_sm_object_init(JSContext *cx, Ender_Item *i, void *o, jsval *val)
+{
+	JSObject *obj;
+
+	obj = JS_NewObject(cx, &_ender_js_sm_instance_class, NULL, NULL);
+	*val = OBJECT_TO_JSVAL(obj);
+}
+
 JSObject * ender_js_sm_object_new(JSContext *cx, Ender_Item *i)
 {
 	JSObject *ret;
 
-	ret = JS_NewObject(cx, &_ender_js_sm_class_object, NULL, NULL);
+	ret = JS_NewObject(cx, &_ender_js_sm_object_class, NULL, NULL);
 	JS_SetPrivate(cx, ret, i);
 	return ret;
 }

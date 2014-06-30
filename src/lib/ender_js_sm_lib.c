@@ -24,9 +24,6 @@
 /*----------------------------------------------------------------------------*
  *                             Class definition                               *
  *----------------------------------------------------------------------------*/
-/* TODO
- * Store the lib on the private data
- */
 static JSBool _ender_js_sm_lib_class_resolve(JSContext *cx, JSObject *obj, jsid id,
 		uintN flags, JSObject **objp)
 {

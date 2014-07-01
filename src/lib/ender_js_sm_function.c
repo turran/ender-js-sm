@@ -225,17 +225,15 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsva
 	if (flags & ENDER_ITEM_FUNCTION_FLAG_IS_METHOD)
 	{
 		JSObject *callee;
-		JSClass *klass;
 
 		callee = JSVAL_TO_OBJECT(JS_CALLEE(cx, argv));
 		parent = JS_GetParent(cx, callee);
 		if (!parent)
 			return EINA_FALSE;
 
-		klass = JS_GetClass(cx, callee);
-		if (strcmp(klass->name, "ender_js_sm_instance"))
+		if (!ender_js_sm_is_instance(cx, parent))
 			return EINA_FALSE;
-		ERR("Is method %s", klass->name);
+		argc++;
 	}
 	nargs = ender_item_function_args_count(i);
 	if (argc != nargs)
@@ -250,11 +248,11 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsva
 
 	/* convert the args to ender values */
 	eargv = calloc(nargs, sizeof(Ender_Value));
+	args = ender_item_function_args_get(i);
 	/* set self */
 	if (flags & ENDER_ITEM_FUNCTION_FLAG_IS_METHOD)
 	{
-		/* TODO get the instance prv */
-		eargv[idx_ender].ptr = parent;
+		eargv[idx_ender].ptr = ender_js_sm_instance_ptr_get(cx, parent);
 		idx_ender++;
 
 		ender_item_unref(args->data);

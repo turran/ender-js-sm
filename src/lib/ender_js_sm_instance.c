@@ -262,6 +262,25 @@ static JSClass _ender_js_sm_instance_class = {
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
+Eina_Bool ender_js_sm_is_instance(JSContext *cx, JSObject *obj)
+{
+	JSClass *klass;
+
+	klass = JS_GetClass(cx, obj);
+	if (strcmp(klass->name, "ender_js_sm_instance"))
+		return EINA_FALSE;
+	else
+		return EINA_TRUE;
+}
+
+void * ender_js_sm_instance_ptr_get(JSContext *cx, JSObject *obj)
+{
+	Ender_Js_Sm_Instance *thiz;
+
+	thiz = JS_GetPrivate(cx, obj);
+	return thiz->o;
+}
+
 void ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o, jsval *val)
 {
 	Ender_Js_Sm_Instance *thiz;

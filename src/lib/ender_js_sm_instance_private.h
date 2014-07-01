@@ -20,6 +20,8 @@
 #define _ENDER_JS_SM_INSTANCE_PRIVATE_H_
 
 void ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o, jsval *val);
+Eina_Bool ender_js_sm_is_instance(JSContext *cx, JSObject *obj);
+void * ender_js_sm_instance_ptr_get(JSContext *cx, JSObject *obj);
 
 #endif
 

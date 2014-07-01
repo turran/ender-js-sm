@@ -19,6 +19,13 @@
 #include "ender_js_sm_function_private.h"
 #include "ender_js_sm_item_private.h"
 #include "ender_js_sm_instance_private.h"
+/*
+ * TODO
+ * When getting a property first the resolve method is called. In case the
+ * script wants to set/get a value, the get/setProperty is called and then
+ * we need to search again for the property. This is not efficient, we need
+ * to know a way to cache the first resolve.
+ */
 /*============================================================================*
  *                                  Local                                     *
  *============================================================================*/

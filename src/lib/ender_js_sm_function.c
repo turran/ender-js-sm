@@ -16,6 +16,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ender_js_sm_private.h"
+#include "ender_js_sm_item_private.h"
 #include "ender_js_sm_function_private.h"
 /*============================================================================*
  *                                  Local                                     *
@@ -181,8 +182,8 @@ static JSBool _ender_js_sm_function_class_call(JSContext *cx, uintN argc, jsval 
 	}
 }
 
-static JSClass _ender_js_sm_class_function = {
-	/* .name  		= */ "ender_js_sm_lib",
+static JSClass _ender_js_sm_function_class = {
+	/* .name  		= */ "ender_js_sm_function",
 	/* .flags 		= */ JSCLASS_HAS_PRIVATE,
 	/* .addProperty 	= */ JS_PropertyStub,
 	/* .delProperty 	= */ JS_PropertyStub,
@@ -210,10 +211,24 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsva
 	Ender_Item *arg;
 	Eina_List *args;
 	Eina_Bool ret;
+	int flags;
 	int nargs;
 	int idx_ender = 0;
 	int idx_js = 0;
 
+	/* Check if it is a method, and if so, we will pass one more
+	 * argument
+	 */
+	flags = ender_item_function_flags_get(i);
+	if (flags & ENDER_ITEM_FUNCTION_FLAG_IS_METHOD)
+	{
+		JSObject *callee;
+		JSClass *klass;
+
+		callee = JS_THIS_OBJECT(cx, argv);
+		klass = JS_GetClass(cx, callee);
+		ERR("Is method %s", klass->name);
+	}
 	nargs = ender_item_function_args_count(i);
 	if (argc != nargs)
 	{
@@ -227,6 +242,16 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsva
 
 	/* convert the args to ender values */
 	eargv = calloc(nargs, sizeof(Ender_Value));
+#if 0
+	/* set self */
+	if (flags & ENDER_ITEM_FUNCTION_FLAG_IS_METHOD)
+	{
+		passed_args[arg].ptr = obj->o;
+		arg++;
+		ender_item_unref(info_args->data);
+		info_args = eina_list_remove_list(info_args, info_args);
+	}
+#endif
 	EINA_LIST_FREE(args, arg)
 	{
 		_ender_js_sm_function_arg_from_jsval(cx, arg, &eargv[idx_ender], &argv[idx_js]);
@@ -253,11 +278,11 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsva
 	return EINA_TRUE;
 }
 
-JSObject * ender_js_sm_function_new(JSContext *cx, Ender_Item *i)
+JSObject * ender_js_sm_function_new(JSContext *cx, JSObject *parent, Ender_Item *i)
 {
 	JSObject *ret;
 
-	ret = JS_NewObject(cx, &_ender_js_sm_class_function, NULL, NULL);
+	ret = JS_NewObject(cx, &_ender_js_sm_function_class, NULL, parent);
 	JS_SetPrivate(cx, ret, i);
 	return ret;
 }

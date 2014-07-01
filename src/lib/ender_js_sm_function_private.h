@@ -19,7 +19,7 @@
 #ifndef _ENDER_JS_SM_FUNCTION_PRIVATE_H_
 #define _ENDER_JS_SM_FUNCTION_PRIVATE_H_
 
-JSObject * ender_js_sm_function_new(JSContext *cx, Ender_Item *i);
+JSObject * ender_js_sm_function_new(JSContext *cx, JSObject *parent, Ender_Item *i);
 Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsval *argv, jsval *ret);
 
 #endif

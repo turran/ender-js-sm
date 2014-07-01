@@ -61,7 +61,7 @@ static JSBool _ender_js_sm_lib_class_resolve(JSContext *cx, JSObject *obj, jsid 
 		JSObject *oi;
 
 		DBG("Item found '%s' when looking for '%s'", ender_item_name_get(item), name);
-		oi = ender_js_sm_item_create(cx, item);
+		oi = ender_js_sm_item_create(cx, NULL, item);
 
 		JS_DefinePropertyById(cx, obj, id, OBJECT_TO_JSVAL(oi), NULL,
 				NULL, 0);

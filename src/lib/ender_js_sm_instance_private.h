@@ -16,9 +16,10 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ENDER_JS_SM_OBJECT_PRIVATE_H_
-#define _ENDER_JS_SM_OBJECT_PRIVATE_H_
+#ifndef _ENDER_JS_SM_INSTANCE_PRIVATE_H_
+#define _ENDER_JS_SM_INSTANCE_PRIVATE_H_
 
-JSObject * ender_js_sm_object_new(JSContext *cx, Ender_Item *i);
+void ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o, jsval *val);
 
 #endif
+

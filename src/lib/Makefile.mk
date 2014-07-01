@@ -12,6 +12,8 @@ src/lib/ender_js_sm_function.c \
 src/lib/ender_js_sm_function_private.h \
 src/lib/ender_js_sm_item.c \
 src/lib/ender_js_sm_item_private.h \
+src/lib/ender_js_sm_instance.c \
+src/lib/ender_js_sm_instance_private.h \
 src/lib/ender_js_sm_lib.c \
 src/lib/ender_js_sm_lib_private.h \
 src/lib/ender_js_sm_object.c \

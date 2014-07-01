@@ -17,6 +17,7 @@
  */
 #include "ender_js_sm_private.h"
 #include "ender_js_sm_item_private.h"
+#include "ender_js_sm_instance_private.h"
 #include "ender_js_sm_function_private.h"
 /*============================================================================*
  *                                  Local                                     *
@@ -45,7 +46,7 @@ static Eina_Bool _ender_js_sm_function_value_to_jsval(JSContext *cx,
 			break;
 
 			case ENDER_ITEM_TYPE_OBJECT:
-			ender_js_sm_object_init(cx, type, v->ptr, jv);
+			ender_js_sm_instance_new(cx, type, v->ptr, jv);
 			ret = EINA_TRUE;
 			break;
 

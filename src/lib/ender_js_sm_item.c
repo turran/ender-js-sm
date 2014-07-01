@@ -34,7 +34,7 @@ void ender_js_sm_item_destroy(JSContext *cx, JSObject *obj)
 	ender_item_unref(i);
 }
 
-JSObject * ender_js_sm_item_create(JSContext *cx, Ender_Item *i)
+JSObject * ender_js_sm_item_create(JSContext *cx, JSObject *parent, Ender_Item *i)
 {
 	JSObject *ret = NULL;
 	Ender_Item_Type type;
@@ -43,7 +43,7 @@ JSObject * ender_js_sm_item_create(JSContext *cx, Ender_Item *i)
 	switch (type)
 	{
 		case ENDER_ITEM_TYPE_FUNCTION:
-		ret = ender_js_sm_function_new(cx, i);
+		ret = ender_js_sm_function_new(cx, parent, i);
 		break;
 
 		case ENDER_ITEM_TYPE_OBJECT:

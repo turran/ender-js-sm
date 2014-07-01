@@ -20,6 +20,6 @@
 #define _ENDER_JS_SM_ITEM_PRIVATE_H_
 
 void ender_js_sm_item_destroy(JSContext *cx, JSObject *obj);
-JSObject * ender_js_sm_item_create(JSContext *cx, Ender_Item *i);
+JSObject * ender_js_sm_item_create(JSContext *cx, JSObject *parent, Ender_Item *i);
 
 #endif

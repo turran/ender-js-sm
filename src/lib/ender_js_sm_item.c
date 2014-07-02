@@ -19,6 +19,7 @@
 #include "ender_js_sm_private.h"
 #include "ender_js_sm_item_private.h"
 #include "ender_js_sm_object_private.h"
+#include "ender_js_sm_enum_private.h"
 #include "ender_js_sm_function_private.h"
 /*============================================================================*
  *                                  Local                                     *
@@ -48,6 +49,10 @@ JSObject * ender_js_sm_item_create(JSContext *cx, JSObject *parent, Ender_Item *
 
 		case ENDER_ITEM_TYPE_OBJECT:
 		ret = ender_js_sm_object_new(cx, i);
+		break;
+
+		case ENDER_ITEM_TYPE_ENUM:
+		ret = ender_js_sm_enum_new(cx, i);
 		break;
 
 		default:

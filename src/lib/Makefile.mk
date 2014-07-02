@@ -8,6 +8,8 @@ src/lib/Ender_Js_Sm.h
 src_lib_libender_js_sm_la_SOURCES = \
 src/lib/ender_js_sm_private.h \
 src/lib/ender_js_sm.c \
+src/lib/ender_js_sm_enum.c \
+src/lib/ender_js_sm_enum_private.h \
 src/lib/ender_js_sm_function.c \
 src/lib/ender_js_sm_function_private.h \
 src/lib/ender_js_sm_item.c \

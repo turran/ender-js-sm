@@ -34,10 +34,11 @@ static JSBool _ender_js_sm_object_class_ctor(JSContext *cx, uintN argc, jsval *v
 {
 	JSObject *callee;
 	JSBool ret = JS_FALSE;
-	jsval retval;
+	jsval retval = JSVAL_NULL;
 	Ender_Item *item;
 	Eina_List *ctors;
 	Ender_Item *ctor;
+	Eina_Bool ok = EINA_FALSE;
 
 	callee = JSVAL_TO_OBJECT(JS_CALLEE(cx, vp));
 	item = JS_GetPrivate(cx, callee);
@@ -50,15 +51,15 @@ static JSBool _ender_js_sm_object_class_ctor(JSContext *cx, uintN argc, jsval *v
 
 		nargs = ender_item_function_args_count(ctor);
 		/* at least the nargs matched, try it */
-		if (nargs == argc)
+		if (!ok && (nargs == argc))
 		{
-			if (ender_js_sm_function_call(cx, ctor, argc, vp, &retval))
+			if (ender_js_sm_function_call(cx, NULL, ctor, argc, JS_ARGV(cx, vp), &retval))
 			{
+				DBG("Constructor succeed");
 				/* initialize the returned object */
 				JS_SET_RVAL(cx, vp, retval);
 				ret = JS_TRUE;
-				ender_item_unref(ctor);
-				break;
+				ok = EINA_TRUE;
 			}
 		}
 		ender_item_unref(ctor);

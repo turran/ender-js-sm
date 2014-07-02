@@ -83,13 +83,13 @@ static void _ender_js_sm_function_class_finalize(JSContext *cx, JSObject *obj)
 static JSBool _ender_js_sm_function_class_call(JSContext *cx, uintN argc, jsval *vp)
 {
 	JSObject *callee;
-	jsval retval;
+	jsval retval = JSVAL_NULL;
 	Ender_Item *item;
 
 	callee = JSVAL_TO_OBJECT(JS_CALLEE(cx, vp));
 	item = JS_GetPrivate(cx, callee);
 
-	if (ender_js_sm_function_call(cx, item, argc, vp, &retval))
+	if (ender_js_sm_function_call(cx, callee, item, argc, JS_ARGV(cx, vp), &retval))
 	{
 		JS_SET_RVAL(cx, vp, retval);
 		return JS_TRUE;
@@ -122,7 +122,7 @@ static JSClass _ender_js_sm_function_class = {
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
-Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsval *argv, jsval *vret)
+Eina_Bool ender_js_sm_function_call(JSContext *cx, JSObject *callee, Ender_Item *i, int argc, jsval *argv, jsval *vret)
 {
 	JSObject *parent = NULL;
 	Ender_Value *eargv;
@@ -141,9 +141,8 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsva
 	flags = ender_item_function_flags_get(i);
 	if (flags & ENDER_ITEM_FUNCTION_FLAG_IS_METHOD)
 	{
-		JSObject *callee;
-
-		callee = JSVAL_TO_OBJECT(JS_CALLEE(cx, argv));
+		if (!callee)
+			return EINA_FALSE;
 		parent = JS_GetParent(cx, callee);
 		if (!parent)
 			return EINA_FALSE;

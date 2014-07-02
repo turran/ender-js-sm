@@ -152,7 +152,7 @@ static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *
 		if (ok)
 		{
 			Ender_Item *type;
-			jsval vret = NULL;
+			jsval vret = JSVAL_VOID;
 
 			type = ender_item_attr_type_get(i);
 			ok = ender_js_sm_value_to_jsval(cx, type, ENDER_ITEM_ARG_DIRECTION_IN, ENDER_ITEM_ARG_TRANSFER_FULL, &v, &vret);

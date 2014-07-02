@@ -22,6 +22,42 @@
 /*============================================================================*
  *                                  Local                                     *
  *============================================================================*/
+static Ender_Item * _ender_js_object_function_get(Ender_Item *i, const char *name)
+{
+	Eina_List *items;
+	Ender_Item *ret = NULL;
+	Ender_Item *item;
+
+	items = ender_item_object_functions_get(i);
+	EINA_LIST_FREE(items, item)
+	{
+		int flags;
+		const char *iname;
+
+		flags = ender_item_function_flags_get(item);
+		if (flags & ENDER_ITEM_FUNCTION_FLAG_IS_METHOD)
+			goto next;
+		iname = ender_item_name_get(item);
+		if (!ret && !strcmp(name, iname))
+			ret = ender_item_ref(item);
+next:
+		ender_item_unref(item);
+	}
+	if (!ret)
+	{
+		Ender_Item *inherit;
+
+		inherit = ender_item_object_inherit_get(i);
+		if (inherit)
+		{
+			ret = _ender_js_object_function_get(inherit, name);
+			ender_item_unref(inherit);
+		}
+	}
+
+	return ret;
+
+}
 /*----------------------------------------------------------------------------*
  *                             Class definition                               *
  *----------------------------------------------------------------------------*/
@@ -72,7 +108,8 @@ static JSBool _ender_js_sm_object_class_resolve(JSContext *cx, JSObject *obj, js
 {
 	JSBool ret = JS_FALSE;
 	jsid own_id;
-	Ender_Item *item = NULL;
+	Ender_Item *item;
+	Ender_Item *i = NULL;
 	char *name;
 	char *item_name;
 
@@ -92,22 +129,26 @@ static JSBool _ender_js_sm_object_class_resolve(JSContext *cx, JSObject *obj, js
 		const Ender_Lib *lib;
 
 		lib = ender_item_lib_get(item);
-		item = ender_lib_item_find(lib, item_name);
+		i = ender_lib_item_find(lib, item_name);
 		free(item_name);
 
 	}
-	/* Now look for attributes, functions */
-	if (!item)
+	/* Now look for functions */
+	if (!i)
 	{
-		ERR("Item '%s' not found", name);
+		char *conv_name;
+		conv_name = ender_utils_name_convert(name, ENDER_CASE_CAMEL, ENDER_NOTATION_ENGLISH,
+				ENDER_CASE_UNDERSCORE, ENDER_NOTATION_LATIN); 
+		i = _ender_js_object_function_get(item, conv_name);
+		free(conv_name);
 	}
 
-	if (item)
+	if (i)
 	{
 		JSObject *oi;
 
-		DBG("Item found '%s' when looking for '%s'", ender_item_name_get(item), name);
-		oi = ender_js_sm_item_create(cx, obj, item);
+		DBG("Item found '%s' when looking for '%s'", ender_item_name_get(i), name);
+		oi = ender_js_sm_item_create(cx, obj, i);
 
 		JS_DefinePropertyById(cx, obj, id, OBJECT_TO_JSVAL(oi), NULL,
 				NULL, 0);

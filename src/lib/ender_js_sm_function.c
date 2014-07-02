@@ -19,95 +19,10 @@
 #include "ender_js_sm_item_private.h"
 #include "ender_js_sm_instance_private.h"
 #include "ender_js_sm_function_private.h"
+#include "ender_js_sm_value_private.h"
 /*============================================================================*
  *                                  Local                                     *
  *============================================================================*/
-static Eina_Bool _ender_js_sm_function_value_to_jsval(JSContext *cx,
-		Ender_Item *type, Ender_Item_Arg_Direction dir,
-		Ender_Item_Arg_Transfer xfer, Ender_Value *v, jsval *jv)
-{
-	Eina_Bool ret = EINA_FALSE;
-
-	/* handle the in/out direction */
-	if (dir == ENDER_ITEM_ARG_DIRECTION_IN)
-	{
-		Ender_Item_Type it;
-
-		it = ender_item_type_get(type);
-		switch (it)
-		{
-			case ENDER_ITEM_TYPE_DEF:
-			{
-				Ender_Item *other;
-
-				other = ender_item_def_type_get(type);
-				ret = _ender_js_sm_function_value_to_jsval(cx, other, dir, xfer, v, jv);
-			}
-			break;
-
-			case ENDER_ITEM_TYPE_OBJECT:
-			ender_js_sm_instance_new(cx, type, v->ptr, jv);
-			ret = EINA_TRUE;
-			break;
-
-			case ENDER_ITEM_TYPE_BASIC:
-			case ENDER_ITEM_TYPE_ENUM:
-			case ENDER_ITEM_TYPE_STRUCT:
-			default:
-			ERR("Type %s", ender_item_type_name_get(it));
-			break;
-		}
-	}
-	else
-	{
-		/* for in/inout directions we always pass a pointer */
-		ERR("Unsupported direction %d", dir);
-	}
-	ender_item_unref(type);
-	return ret;
-}
-
-static Eina_Bool _ender_js_sm_function_value_from_jsval(JSContext *cx,
-		Ender_Item *type, Ender_Item_Arg_Direction dir,
-		Ender_Item_Arg_Transfer xfer, Ender_Value *v, jsval *jv)
-{
-	Eina_Bool ret = EINA_FALSE;
-
-	/* handle the in/out direction */
-	if (dir == ENDER_ITEM_ARG_DIRECTION_IN)
-	{
-		Ender_Item_Type it;
-
-		it = ender_item_type_get(type);
-		switch (it)
-		{
-			case ENDER_ITEM_TYPE_DEF:
-			{
-				Ender_Item *other;
-
-				other = ender_item_def_type_get(type);
-				ret = _ender_js_sm_function_value_from_jsval(cx, other, dir, xfer, v, jv);
-			}
-			break;
-
-			case ENDER_ITEM_TYPE_BASIC:
-			case ENDER_ITEM_TYPE_ENUM:
-			case ENDER_ITEM_TYPE_OBJECT:
-			case ENDER_ITEM_TYPE_STRUCT:
-			default:
-			ERR("Type %s", ender_item_type_name_get(it));
-			break;
-		}
-	}
-	else
-	{
-		/* for in/inout directions we always pass a pointer */
-		ERR("Unsupported direction %d", dir);
-	}
-	ender_item_unref(type);
-	return ret;
-}
-
 static Eina_Bool _ender_js_sm_function_arg_to_jsval(JSContext *cx, Ender_Item *arg,
 		Ender_Value *v, jsval *jv)
 {

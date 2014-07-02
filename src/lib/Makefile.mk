@@ -19,6 +19,8 @@ src/lib/ender_js_sm_lib_private.h \
 src/lib/ender_js_sm_object.c \
 src/lib/ender_js_sm_object_private.h \
 src/lib/ender_js_sm_string.c \
+src/lib/ender_js_sm_string_private.h \
+src/lib/ender_js_sm_value.c \
 src/lib/ender_js_sm_string_private.h
 
 src_lib_libender_js_sm_la_CPPFLAGS = \

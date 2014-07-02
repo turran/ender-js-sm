@@ -42,13 +42,14 @@ static Eina_Bool _ender_js_sm_function_arg_to_jsval(JSContext *cx, Ender_Item *a
 
 	dir = ender_item_arg_direction_get(arg);
 	xfer = ender_item_arg_transfer_get(arg);
-	ret = _ender_js_sm_function_value_to_jsval(cx, type, dir, xfer, v, jv);
+	ret = ender_js_sm_value_to_jsval(cx, type, dir, xfer, v, jv);
+	ender_item_unref(type);
 
 	return ret;
 }
 
 static Eina_Bool _ender_js_sm_function_arg_from_jsval(JSContext *cx, Ender_Item *arg,
-		Ender_Value *v, jsval *jv)
+		Ender_Value *v, jsval jv)
 {
 	Ender_Item *type;
 	Ender_Item_Arg_Direction dir;
@@ -66,7 +67,8 @@ static Eina_Bool _ender_js_sm_function_arg_from_jsval(JSContext *cx, Ender_Item 
 
 	dir = ender_item_arg_direction_get(arg);
 	xfer = ender_item_arg_transfer_get(arg);
-	ret = _ender_js_sm_function_value_from_jsval(cx, type, dir, xfer, v, jv);
+	ret = ender_js_sm_value_from_jsval(cx, type, dir, xfer, v, jv);
+	ender_item_unref(type);
 
 	return ret;
 }
@@ -176,7 +178,7 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, Ender_Item *i, int argc, jsva
 
 	EINA_LIST_FREE(args, arg)
 	{
-		_ender_js_sm_function_arg_from_jsval(cx, arg, &eargv[idx_ender], &argv[idx_js]);
+		_ender_js_sm_function_arg_from_jsval(cx, arg, &eargv[idx_ender], argv[idx_js]);
 		ender_item_unref(arg);
 		idx_ender++;
 		idx_js++;

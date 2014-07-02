@@ -19,6 +19,7 @@
 #include "ender_js_sm_function_private.h"
 #include "ender_js_sm_item_private.h"
 #include "ender_js_sm_instance_private.h"
+#include "ender_js_sm_value_private.h"
 /*
  * TODO
  * When getting a property first the resolve method is called. In case the
@@ -136,14 +137,38 @@ static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *
 
 	conv_name = ender_utils_name_convert(name, ENDER_CASE_CAMEL, ENDER_NOTATION_ENGLISH,
 			ENDER_CASE_UNDERSCORE, ENDER_NOTATION_LATIN); 
-	ERR("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
+	DBG("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
 	
 	/* for properties we do get the value */
 	i = _ender_js_object_prop_get(thiz->i, conv_name);
 	if (i)
 	{
-		ender_item_unref(i);
-		ret = JS_TRUE;
+		Eina_Bool ok;
+		Eina_Error err;
+		Ender_Value v = { 0 };
+
+		/* FIXME use the correct direction/transfer */
+		ok = ender_item_attr_value_get(i, thiz->o, &v, &err);
+		if (ok)
+		{
+			Ender_Item *type;
+			jsval vret = NULL;
+
+			type = ender_item_attr_type_get(i);
+			ok = ender_js_sm_value_to_jsval(cx, type, ENDER_ITEM_ARG_DIRECTION_IN, ENDER_ITEM_ARG_TRANSFER_FULL, &v, &vret);
+			if (ok)
+			{
+				JS_SET_RVAL(cx, vp, vret);
+				ret = JS_TRUE;
+			}
+			ender_item_unref(type);
+			ender_item_unref(i);
+		}
+		else
+		{
+			/* TODO Send the error */
+			ender_item_unref(i);
+		}
 	}
 	else
 	{
@@ -174,14 +199,32 @@ static JSBool _ender_js_sm_instance_class_set_property(JSContext *cx, JSObject *
 
 	conv_name = ender_utils_name_convert(name, ENDER_CASE_CAMEL, ENDER_NOTATION_ENGLISH,
 			ENDER_CASE_UNDERSCORE, ENDER_NOTATION_LATIN); 
-	ERR("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
+	DBG("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
 	
 	/* for properties we do get the value */
 	i = _ender_js_object_prop_get(thiz->i, conv_name);
 	if (i)
 	{
-		ender_item_unref(i);
-		ret = JS_TRUE;
+		Eina_Bool ok;
+		Eina_Error err;
+		Ender_Item *type;
+		Ender_Value v = { 0 };
+
+		type = ender_item_attr_type_get(i);
+		/* FIXME use the correct direction/transfer */
+		ok = ender_js_sm_value_from_jsval(cx, type, ENDER_ITEM_ARG_DIRECTION_IN, ENDER_ITEM_ARG_TRANSFER_FULL, &v, vp[0]);
+		ender_item_unref(type);
+		if (ok)
+		{
+			ok = ender_item_attr_value_set(i, thiz->o, &v, &err);
+			ender_item_unref(i);
+			ret = JS_TRUE;
+		}
+		else
+		{
+			/* TODO Send the error */
+			ender_item_unref(i);
+		}
 	}
 	else
 	{
@@ -217,7 +260,7 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 
 	conv_name = ender_utils_name_convert(name, ENDER_CASE_CAMEL, ENDER_NOTATION_ENGLISH,
 			ENDER_CASE_UNDERSCORE, ENDER_NOTATION_LATIN); 
-	ERR("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
+	DBG("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
 	
 	/* only resolve properties and methods */
 	i = _ender_js_object_prop_get(thiz->i, conv_name);

@@ -1,4 +1,4 @@
-/* Ender_Js_Sm - JavaScript bindings for Ender
+/* Ender Js SM - JavaScript bindings for Ender (SpiderMonkey based)
  * Copyright (C) 2014 Jorge Luis Zapata
  *
  * This library is free software; you can redistribute it and/or

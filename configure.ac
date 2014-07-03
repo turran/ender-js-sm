@@ -3,7 +3,7 @@
 
 m4_define([v_maj], [0])
 m4_define([v_min], [0])
-m4_define([v_mic], [8])
+m4_define([v_mic], [1])
 m4_define([v_ver], [v_maj.v_min.v_mic])
 
 m4_define([lt_cur], m4_eval(v_maj + v_min))
@@ -71,10 +71,12 @@ LT_SYS_MODULE_EXT
 
 ### Checks for libraries
 
-requirements_ender_js_sm_pc="${requirements_ender_js_sm_pc} ender >= 0.0.8  enesim >= 0.0.21 mozjs185"
+ender_js_sm_requirements="${ender_js_sm_requirements} ender >= 0.0.8  mozjs185"
+ender_js_sm_requirements_private="${ender_js_sm_requirements_private} enesim >= 0.0.21"
 
-PKG_CHECK_MODULES([REQUIREMENTS], [${requirements_ender_js_sm_pc}])
-AC_SUBST([requirements_ender_js_sm_pc])
+PKG_CHECK_MODULES([REQUIREMENTS], [${ender_js_sm_requirements} ${ender_js_sm_requirements_private}])
+AC_SUBST([ender_js_sm_requirements])
+AC_SUBST([ender_js_sm_requirements_private])
 
 ENDER_JS_SM_CFLAGS="${ENDER_JS_SM_CFLAGS} ${REQUIREMENTS_CFLAGS}"
 ENDER_JS_SM_LIBS="${REQUIREMENTS_LIBS}"

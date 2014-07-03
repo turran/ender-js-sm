@@ -22,6 +22,7 @@
 /*============================================================================*
  *                                  Local                                     *
  *============================================================================*/
+static int _init = 0;
 /*----------------------------------------------------------------------------*
  *                             Class definition                               *
  *----------------------------------------------------------------------------*/
@@ -93,14 +94,21 @@ int ender_js_sm_log = -1;
  *============================================================================*/
 EAPI void ender_js_sm_init(void)
 {
-	ender_init();
-	ender_js_sm_log = eina_log_domain_register("ender-js-sm", NULL);
+	if (!_init++)
+	{
+		ender_init();
+		ender_js_sm_log = eina_log_domain_register("ender-js-sm", NULL);
+	}
 }
 
 EAPI void ender_js_sm_shutdown(void)
 {
-	eina_log_domain_unregister(ender_js_sm_log);
-	ender_shutdown();
+	if (_init == 1)
+	{
+		eina_log_domain_unregister(ender_js_sm_log);
+		ender_shutdown();
+	}
+	_init--;
 }
 
 EAPI JSClass * ender_js_sm_class_get(void)

@@ -53,4 +53,6 @@ EAPI void ender_js_sm_init(void);
 EAPI void ender_js_sm_shutdown(void);
 EAPI JSClass * ender_js_sm_class_get(void);
 
+EAPI JSObject * ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o);
+
 #endif

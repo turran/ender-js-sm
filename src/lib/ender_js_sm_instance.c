@@ -330,8 +330,10 @@ void * ender_js_sm_instance_ptr_get(JSContext *cx, JSObject *obj)
 	thiz = JS_GetPrivate(cx, obj);
 	return thiz->o;
 }
-
-void ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o, jsval *val)
+/*============================================================================*
+ *                                   API                                      *
+ *============================================================================*/
+EAPI JSObject * ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o)
 {
 	Ender_Js_Sm_Instance *thiz;
 	JSObject *obj;
@@ -343,6 +345,5 @@ void ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o, jsval *val)
 	thiz->o = o;
 	JS_SetPrivate(cx, obj, thiz);
 
-	*val = OBJECT_TO_JSVAL(obj);
+	return obj;
 }
-

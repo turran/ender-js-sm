@@ -16,6 +16,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ender_js_sm_private.h"
+#include "Ender_Js_Sm.h"
 #include "ender_js_sm_instance_private.h"
 #include "ender_js_sm_value_private.h"
 /*============================================================================*
@@ -151,7 +152,7 @@ Eina_Bool ender_js_sm_value_to_jsval(JSContext *cx,
 			break;
 
 			case ENDER_ITEM_TYPE_OBJECT:
-			ender_js_sm_instance_new(cx, type, v->ptr, jv);
+			*jv = OBJECT_TO_JSVAL(ender_js_sm_instance_new(cx, type, v->ptr));
 			ret = EINA_TRUE;
 			break;
 

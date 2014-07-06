@@ -266,6 +266,7 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 	i = _ender_js_object_prop_get(thiz->i, conv_name);
 	if (i)
 	{
+		DBG("Property '%s' found", ender_item_name_get(i));
 		*objp = obj;
 		ret = JS_TRUE;
 		ender_item_unref(i);
@@ -277,6 +278,7 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 	{
 		JSObject *oi;
 
+		DBG("Method '%s' found", ender_item_name_get(i));
 		oi = ender_js_sm_item_create(cx, obj, i);
 		JS_DefinePropertyById(cx, obj, id, OBJECT_TO_JSVAL(oi), NULL,
 				NULL, 0);

@@ -65,7 +65,6 @@ static Eina_Bool _ender_js_sm_value_basic_to_jsval(JSContext *cx,
 		case ENDER_VALUE_TYPE_UINT64:
 		case ENDER_VALUE_TYPE_INT64:
 		case ENDER_VALUE_TYPE_POINTER:
-		case ENDER_VALUE_TYPE_EXCEPTION:
 		ret = EINA_FALSE;
 		break;
 	}
@@ -111,13 +110,17 @@ static Eina_Bool _ender_js_sm_value_basic_from_jsval(JSContext *cx,
 		break;
 
 		case ENDER_VALUE_TYPE_STRING:
-		ret = ender_js_sm_string_get(cx, jv, &v->ptr);
+		{
+			JSString *s;
+
+			s = JS_ValueToString(cx, jv);
+			ret = ender_js_sm_string_get(cx, STRING_TO_JSVAL(s), &v->ptr);
+		}
 		break;
 
 		case ENDER_VALUE_TYPE_UINT64:
 		case ENDER_VALUE_TYPE_INT64:
 		case ENDER_VALUE_TYPE_POINTER:
-		case ENDER_VALUE_TYPE_EXCEPTION:
 		ret = EINA_FALSE;
 		break;
 	}
@@ -214,17 +217,58 @@ Eina_Bool ender_js_sm_value_from_jsval(JSContext *cx,
 			case ENDER_ITEM_TYPE_STRUCT:
 			if (JSVAL_IS_NULL(jv))
 			{
+				DBG("Converting from js object to NULL");
 				v->ptr = NULL;
 			}
 			else if (JSVAL_IS_OBJECT(jv))
 			{
 				JSObject *obj;
+
+				DBG("Converting from js object to ender object");
 				obj = JSVAL_TO_OBJECT(jv);
 				if (ender_js_sm_is_instance(cx, obj))
 				{
 					v->ptr = ender_js_sm_instance_ptr_get(cx, obj);
 					ret = EINA_TRUE;
 				}
+			}
+			else if (it == ENDER_ITEM_TYPE_OBJECT)
+			{
+				Eina_List *ctors;
+				Ender_Item *ctor;
+
+				DBG("Constructing a new object");
+				ctors = ender_item_object_ctor_get(type);
+				EINA_LIST_FREE(ctors, ctor)
+				{
+					Ender_Value vr = { 0 };
+					Ender_Item *arg;
+					Ender_Item *arg_type;
+					int nargs;
+
+					nargs = ender_item_function_args_count(ctor);
+					if (nargs != 1)
+					{
+						ender_item_unref(ctor);
+						continue;
+					}
+					/* convert the arg from a jsval to the first arg type */
+					arg = ender_item_function_args_at(ctor, 0);
+					arg_type = ender_item_arg_type_get(arg);
+					ender_js_sm_value_from_jsval(cx, arg_type,
+							ender_item_arg_direction_get(arg),
+							ender_item_arg_transfer_get(arg),
+							v, jv);
+					ret = ender_item_function_call(ctor, v, &vr);
+					v->ptr = vr.ptr;
+					ender_item_unref(arg_type);
+					ender_item_unref(arg);
+					/* TODO in case the newly created object is not passed full, we need to free it */
+				}
+			}
+			else
+			{
+				ERR("Unsupported type");
 			}
 			break;
 

@@ -28,7 +28,7 @@ static Eina_Bool _ender_js_sm_function_arg_to_jsval(JSContext *cx, Ender_Item *a
 {
 	Ender_Item *type;
 	Ender_Item_Arg_Direction dir;
-	Ender_Item_Arg_Transfer xfer;
+	Ender_Item_Transfer xfer;
 	Eina_Bool ret = EINA_FALSE;
 
 	type = ender_item_arg_type_get(arg);
@@ -53,7 +53,7 @@ static Eina_Bool _ender_js_sm_function_arg_from_jsval(JSContext *cx, Ender_Item 
 {
 	Ender_Item *type;
 	Ender_Item_Arg_Direction dir;
-	Ender_Item_Arg_Transfer xfer;
+	Ender_Item_Transfer xfer;
 	Eina_Bool ret = EINA_FALSE;
 
 	type = ender_item_arg_type_get(arg);

@@ -189,14 +189,14 @@ static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *
 		Ender_Value v = { 0 };
 
 		/* FIXME use the correct direction/transfer */
-		ok = ender_item_attr_value_get(i, thiz->o, &v, &err);
+		ok = ender_item_attr_value_get(i, thiz->o, NULL, &v, &err);
 		if (ok)
 		{
 			Ender_Item *type;
 			jsval vret = JSVAL_VOID;
 
 			type = ender_item_attr_type_get(i);
-			ok = ender_js_sm_value_to_jsval(cx, type, ENDER_ITEM_ARG_DIRECTION_IN, ENDER_ITEM_ARG_TRANSFER_FULL, &v, &vret);
+			ok = ender_js_sm_value_to_jsval(cx, type, ENDER_ITEM_ARG_DIRECTION_IN, ENDER_ITEM_TRANSFER_FULL, &v, &vret);
 			if (ok)
 			{
 				JS_SET_RVAL(cx, vp, vret);
@@ -254,7 +254,7 @@ static JSBool _ender_js_sm_instance_class_set_property(JSContext *cx, JSObject *
 
 		type = ender_item_attr_type_get(i);
 		/* FIXME use the correct direction/transfer */
-		ok = ender_js_sm_value_from_jsval(cx, type, ENDER_ITEM_ARG_DIRECTION_IN, ENDER_ITEM_ARG_TRANSFER_FULL, &v, vp[0]);
+		ok = ender_js_sm_value_from_jsval(cx, type, ENDER_ITEM_ARG_DIRECTION_IN, ENDER_ITEM_TRANSFER_FULL, &v, vp[0]);
 		ender_item_unref(type);
 		if (ok)
 		{

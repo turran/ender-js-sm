@@ -131,7 +131,7 @@ static Eina_Bool _ender_js_sm_value_basic_from_jsval(JSContext *cx,
  *============================================================================*/
 Eina_Bool ender_js_sm_value_to_jsval(JSContext *cx,
 		Ender_Item *type, Ender_Item_Arg_Direction dir,
-		Ender_Item_Arg_Transfer xfer, Ender_Value *v, jsval *jv)
+		Ender_Item_Transfer xfer, Ender_Value *v, jsval *jv)
 {
 	Eina_Bool ret = EINA_FALSE;
 
@@ -181,7 +181,7 @@ Eina_Bool ender_js_sm_value_to_jsval(JSContext *cx,
 
 Eina_Bool ender_js_sm_value_from_jsval(JSContext *cx,
 		Ender_Item *type, Ender_Item_Arg_Direction dir,
-		Ender_Item_Arg_Transfer xfer, Ender_Value *v, jsval jv)
+		Ender_Item_Transfer xfer, Ender_Value *v, jsval jv)
 {
 	Eina_Bool ret = EINA_FALSE;
 

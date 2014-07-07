@@ -134,7 +134,9 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, JSObject *callee, Ender_Item 
 	int nargs;
 	int idx_ender = 0;
 	int idx_js = 0;
+	int idx_throw = -1;
 
+	DBG("Calling function '%s'", ender_item_name_get(i));
 	/* Check if it is a method, and if so, we will pass one more
 	 * argument
 	 */
@@ -151,6 +153,12 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, JSObject *callee, Ender_Item 
 			return EINA_FALSE;
 		argc++;
 	}
+	/* in case we throw, increase the number of passed in args */
+	if (flags & ENDER_ITEM_FUNCTION_FLAG_THROWS)
+	{
+		idx_throw = ender_item_function_throw_position_get(i);
+		argc++;
+	}
 	nargs = ender_item_function_args_count(i);
 	if (argc != nargs)
 	{
@@ -162,7 +170,7 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, JSObject *callee, Ender_Item 
 		return EINA_FALSE;
 	}
 
-	/* convert the args to ender values */
+	/* convert the passed in args to ender values */
 	eargv = calloc(nargs, sizeof(Ender_Value));
 	args = ender_item_function_args_get(i);
 	/* set self */
@@ -177,10 +185,17 @@ Eina_Bool ender_js_sm_function_call(JSContext *cx, JSObject *callee, Ender_Item 
 
 	EINA_LIST_FREE(args, arg)
 	{
+		/* skip the error in case we need to */
+		if (idx_ender == idx_throw)
+		{
+			DBG("Skipping the error arg at %d", idx_throw);
+			goto next;
+		}
 		_ender_js_sm_function_arg_from_jsval(cx, arg, &eargv[idx_ender], argv[idx_js]);
+		idx_js++;
+next:
 		ender_item_unref(arg);
 		idx_ender++;
-		idx_js++;
 	}
 
 	ret = ender_item_function_call(i, eargv, &eret);

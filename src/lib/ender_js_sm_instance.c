@@ -16,6 +16,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ender_js_sm_private.h"
+#include "ender_js_sm_string_private.h"
 #include "ender_js_sm_function_private.h"
 #include "ender_js_sm_item_private.h"
 #include "ender_js_sm_instance_private.h"
@@ -157,11 +158,8 @@ static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *
 	Ender_Js_Sm_Instance *thiz;
 	Ender_Item *i;
 	JSBool ret = JS_FALSE;
-	jsid own_id;
-	Eina_List *items;
 	char *name;
 	char *conv_name;
-	char *item_name;
 
 	thiz = JS_GetPrivate(cx, obj);
 	if (!thiz)
@@ -215,7 +213,6 @@ static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *
 	{
 		ret = JS_TRUE;
 	}
-done:
 	free(conv_name);
 no_prop:
 	free(name);
@@ -227,10 +224,8 @@ static JSBool _ender_js_sm_instance_class_set_property(JSContext *cx, JSObject *
 	Ender_Js_Sm_Instance *thiz;
 	Ender_Item *i;
 	JSBool ret = JS_FALSE;
-	jsid own_id;
 	char *name;
 	char *conv_name;
-	char *item_name;
 
 	thiz = JS_GetPrivate(cx, obj);
 	if (!thiz)
@@ -272,7 +267,6 @@ static JSBool _ender_js_sm_instance_class_set_property(JSContext *cx, JSObject *
 	{
 		ret = JS_TRUE;
 	}
-done:
 	free(conv_name);
 	free(name);
 	return ret;
@@ -284,11 +278,8 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 	Ender_Js_Sm_Instance *thiz;
 	Ender_Item *i;
 	JSBool ret = JS_FALSE;
-	jsid own_id;
-	Eina_List *items;
 	char *name;
 	char *conv_name;
-	char *item_name;
 
 	/* initialize */
 	*objp = NULL;

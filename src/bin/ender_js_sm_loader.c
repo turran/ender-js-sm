@@ -50,7 +50,6 @@ int main(int argc, char **argv)
 	JSRuntime *rt;
 	JSContext *cx;
 	JSObject *global;
-	JSObject *ender;
 	Enesim_Stream *s;
 	char *data;
 	size_t data_len;

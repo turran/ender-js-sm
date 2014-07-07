@@ -17,6 +17,7 @@
  */
 #include "ender_js_sm_private.h"
 #include "Ender_Js_Sm.h"
+#include "ender_js_sm_string_private.h"
 #include "ender_js_sm_instance_private.h"
 #include "ender_js_sm_value_private.h"
 /*============================================================================*
@@ -114,7 +115,7 @@ static Eina_Bool _ender_js_sm_value_basic_from_jsval(JSContext *cx,
 			JSString *s;
 
 			s = JS_ValueToString(cx, jv);
-			ret = ender_js_sm_string_get(cx, STRING_TO_JSVAL(s), &v->ptr);
+			ret = ender_js_sm_string_get(cx, STRING_TO_JSVAL(s), (char **)&v->ptr);
 		}
 		break;
 

@@ -103,6 +103,41 @@ next:
 	return ret;
 
 }
+
+static JSBool _ender_js_sm_instance_string_to(JSContext *cx, uintN argc, jsval *vp)
+{
+	Ender_Js_Sm_Instance *thiz;
+	JSObject *jsthis;
+	Eina_Bool ok;
+	Eina_Error err;
+	char *str = NULL;
+
+	jsthis = JSVAL_TO_OBJECT(JS_THIS(cx, vp));
+	thiz = JS_GetPrivate(cx, jsthis);
+
+	if (!thiz->o)
+	{
+		ERR("No object in instance, nothing to do");
+		return JS_FALSE;
+	}
+
+	ok = ender_item_object_string_to(thiz->i, thiz->o, &str, NULL, &err);
+	if (ok)
+	{
+		jsval retval;
+
+		DBG("String representation is %s", str);
+		retval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str));
+		/* TODO in case the transfer is full, free it */
+		JS_SET_RVAL(cx, vp, retval);
+		return JS_TRUE;
+	}
+	else
+	{
+		ERR("Converting from to string failed");
+		return JS_FALSE;
+	}
+}
 /*----------------------------------------------------------------------------*
  *                             Class definition                               *
  *----------------------------------------------------------------------------*/
@@ -134,6 +169,12 @@ static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *
 
 	if (!ender_js_sm_string_id_get(cx, id, &name))
 		return JS_FALSE;
+
+	if (!strcmp(name, "valueOf") || !strcmp(name, "toString"))
+	{
+		ret = JS_TRUE;
+		goto no_prop;
+	}
 
 	conv_name = ender_utils_name_convert(name, ENDER_CASE_CAMEL, ENDER_NOTATION_ENGLISH,
 			ENDER_CASE_UNDERSCORE, ENDER_NOTATION_LATIN); 
@@ -176,6 +217,7 @@ static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *
 	}
 done:
 	free(conv_name);
+no_prop:
 	free(name);
 	return ret;
 }
@@ -258,10 +300,23 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 	if (!ender_js_sm_string_id_get(cx, id, &name))
 		return JS_FALSE;
 
+	if (!strcmp(name, "__iterator__"))
+		goto no_conv;
+
+	/* for valueOf or toString use the string_to ender function */
+	if (!strcmp(name, "valueOf") || !strcmp(name, "toString"))
+	{
+		DBG("Resolving the value of an object (%s)", name);
+		JS_DefineFunction(cx, obj, name, _ender_js_sm_instance_string_to, 0, 0);
+		*objp = obj;
+		ret = JS_TRUE;
+		goto no_conv;
+	}
+
 	conv_name = ender_utils_name_convert(name, ENDER_CASE_CAMEL, ENDER_NOTATION_ENGLISH,
 			ENDER_CASE_UNDERSCORE, ENDER_NOTATION_LATIN); 
 	DBG("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
-	
+
 	/* only resolve properties and methods */
 	i = _ender_js_object_prop_get(thiz->i, conv_name);
 	if (i)
@@ -288,6 +343,7 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 
 done:
 	free(conv_name);
+no_conv:
 	free(name);
 	return ret;
 }
@@ -340,9 +396,12 @@ EAPI JSObject * ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o)
 	Ender_Js_Sm_Instance *thiz;
 	JSObject *obj;
 
+	if (!i) return NULL;
+
 	obj = JS_NewObject(cx, &_ender_js_sm_instance_class, NULL, NULL);
 
 	thiz = calloc(1, sizeof(Ender_Js_Sm_Instance));
+	/* TODO do not increment it */
 	thiz->i = ender_item_ref(i);
 	thiz->o = o;
 	JS_SetPrivate(cx, obj, thiz);

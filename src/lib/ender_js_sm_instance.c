@@ -135,7 +135,8 @@ static JSBool _ender_js_sm_instance_string_to(JSContext *cx, uintN argc, jsval *
 	}
 	else
 	{
-		ERR("Converting from to string failed");
+		/* TODO define the class like [foo Foo] or something like that */
+		ERR("Converting to string '%s' failed", ender_item_name_get(thiz->i));
 		return JS_FALSE;
 	}
 }
@@ -392,8 +393,7 @@ EAPI JSObject * ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o)
 	obj = JS_NewObject(cx, &_ender_js_sm_instance_class, NULL, NULL);
 
 	thiz = calloc(1, sizeof(Ender_Js_Sm_Instance));
-	/* TODO do not increment it */
-	thiz->i = ender_item_ref(i);
+	thiz->i = i;
 	thiz->o = o;
 	JS_SetPrivate(cx, obj, thiz);
 

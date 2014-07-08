@@ -156,7 +156,8 @@ Eina_Bool ender_js_sm_value_to_jsval(JSContext *cx,
 			break;
 
 			case ENDER_ITEM_TYPE_OBJECT:
-			*jv = OBJECT_TO_JSVAL(ender_js_sm_instance_new(cx, type, v->ptr));
+			*jv = OBJECT_TO_JSVAL(ender_js_sm_instance_new(cx,
+					ender_item_ref(type), v->ptr));
 			ret = EINA_TRUE;
 			break;
 

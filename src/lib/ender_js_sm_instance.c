@@ -331,8 +331,10 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 				NULL, 0);
 		*objp = obj;
 		ret = JS_TRUE;
+		goto done;
 	}
-
+	WRN("No item '%s' found in '%s'", conv_name, ender_item_name_get(thiz->i));
+	JS_ReportError(cx, "Instance has no property '%s'", name);
 done:
 	free(conv_name);
 no_conv:

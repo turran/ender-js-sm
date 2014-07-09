@@ -16,6 +16,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 #include "ender_js_sm_private.h"
+#include "Ender_Js_Sm.h"
 #include "ender_js_sm_item_private.h"
 #include "ender_js_sm_instance_private.h"
 #include "ender_js_sm_function_private.h"

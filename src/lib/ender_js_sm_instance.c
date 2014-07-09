@@ -364,7 +364,10 @@ static JSClass _ender_js_sm_instance_class = {
 /*============================================================================*
  *                                 Global                                     *
  *============================================================================*/
-Eina_Bool ender_js_sm_is_instance(JSContext *cx, JSObject *obj)
+/*============================================================================*
+ *                                   API                                      *
+ *============================================================================*/
+EAPI Eina_Bool ender_js_sm_is_instance(JSContext *cx, JSObject *obj)
 {
 	JSClass *klass;
 
@@ -375,16 +378,14 @@ Eina_Bool ender_js_sm_is_instance(JSContext *cx, JSObject *obj)
 		return EINA_TRUE;
 }
 
-void * ender_js_sm_instance_ptr_get(JSContext *cx, JSObject *obj)
+EAPI void * ender_js_sm_instance_ptr_get(JSContext *cx, JSObject *obj)
 {
 	Ender_Js_Sm_Instance *thiz;
 
 	thiz = JS_GetPrivate(cx, obj);
 	return thiz->o;
 }
-/*============================================================================*
- *                                   API                                      *
- *============================================================================*/
+
 EAPI JSObject * ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o)
 {
 	Ender_Js_Sm_Instance *thiz;

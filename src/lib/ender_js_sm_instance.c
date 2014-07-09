@@ -392,6 +392,23 @@ EAPI JSObject * ender_js_sm_instance_new(JSContext *cx, Ender_Item *i, void *o)
 
 	if (!i) return NULL;
 
+	/* check if the item i supports downcast, if so, get the real
+	 * item and unref i
+	 */
+	if (ender_item_type_get(i) == ENDER_ITEM_TYPE_OBJECT)
+	{
+		Ender_Item *downcast;
+
+		downcast = ender_item_object_downcast(i, o);
+		if (downcast)
+		{
+			DBG("Downcasting from %s to %s", ender_item_name_get(i),
+					ender_item_name_get(downcast));
+			ender_item_unref(i);
+			i = downcast;
+		}
+	}
+
 	obj = JS_NewObject(cx, &_ender_js_sm_instance_class, NULL, NULL);
 
 	thiz = calloc(1, sizeof(Ender_Js_Sm_Instance));

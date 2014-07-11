@@ -107,7 +107,10 @@ static Eina_Bool _ender_js_sm_value_basic_from_jsval(JSContext *cx,
 		break;
 
 		case ENDER_VALUE_TYPE_DOUBLE:
-		v->d = JSVAL_TO_DOUBLE(jv);
+		if (JSVAL_IS_INT(jv))
+			v->d = JSVAL_TO_INT(jv);
+		else if (JSVAL_IS_DOUBLE(jv))
+			v->d = JSVAL_TO_DOUBLE(jv);
 		break;
 
 		case ENDER_VALUE_TYPE_STRING:
@@ -156,6 +159,7 @@ Eina_Bool ender_js_sm_value_to_jsval(JSContext *cx,
 			break;
 
 			case ENDER_ITEM_TYPE_OBJECT:
+			case ENDER_ITEM_TYPE_STRUCT:
 			*jv = OBJECT_TO_JSVAL(ender_js_sm_instance_new(cx,
 					ender_item_ref(type), v->ptr));
 			ret = EINA_TRUE;
@@ -166,8 +170,8 @@ Eina_Bool ender_js_sm_value_to_jsval(JSContext *cx,
 			/* TODO in case the transfer is full and the type is a string, free it */
 			break;
 
+
 			case ENDER_ITEM_TYPE_ENUM:
-			case ENDER_ITEM_TYPE_STRUCT:
 			default:
 			ERR("Unsupported type %s", ender_item_type_name_get(it));
 			break;

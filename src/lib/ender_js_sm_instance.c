@@ -140,15 +140,100 @@ static JSBool _ender_js_sm_instance_string_to(JSContext *cx, uintN argc, jsval *
 		return JS_FALSE;
 	}
 }
+
+static Eina_Bool _ender_js_sm_instance_object_resolve(JSContext *cx, JSObject *obj,
+		jsid id, Ender_Item *i, const char *name)
+{
+	Ender_Item *found;
+	Eina_Bool ret;
+
+	/* only resolve properties and methods */
+	found = _ender_js_object_prop_get(i, name);
+	if (found)
+	{
+		DBG("Property '%s' found", ender_item_name_get(found));
+		ret = EINA_TRUE;
+		ender_item_unref(found);
+		goto done;
+	}
+
+	found = _ender_js_object_method_get(i, name);
+	if (found)
+	{
+		JSObject *oi;
+
+		DBG("Method '%s' found", ender_item_name_get(i));
+		oi = ender_js_sm_item_create(cx, obj, found);
+		JS_DefinePropertyById(cx, obj, id, OBJECT_TO_JSVAL(oi), NULL,
+				NULL, 0);
+		ret = EINA_TRUE;
+	}
+done:
+	return ret;
+}
+
+
+static Ender_Item * _ender_js_sm_instance_struct_field_get(Ender_Item *i, const char *name)
+{
+	Eina_List *items;
+	Ender_Item *ret = NULL;
+	Ender_Item *item;
+
+	items = ender_item_struct_fields_get(i);
+	EINA_LIST_FREE(items, item)
+	{
+		const char *iname;
+
+		iname = ender_item_name_get(item);
+		if (!ret && !strcmp(name, iname))
+			ret = ender_item_ref(item);
+		ender_item_unref(item);
+	}
+	return ret;
+}
+
+static Eina_Bool _ender_js_sm_instance_struct_resolve(JSContext *cx, JSObject *obj,
+		jsid id, Ender_Item *i, const char *name)
+{
+	Ender_Item *found;
+	Eina_Bool ret = EINA_FALSE;
+
+	/* only resolve properties and methods */
+	found = _ender_js_sm_instance_struct_field_get(i, name);
+	if (found)
+	{
+		DBG("Field '%s' found", ender_item_name_get(found));
+		ret = EINA_TRUE;
+		ender_item_unref(found);
+	}
+	return ret;
+}
+
 /*----------------------------------------------------------------------------*
  *                             Class definition                               *
  *----------------------------------------------------------------------------*/
 static void _ender_js_sm_instance_class_finalize(JSContext *cx, JSObject *obj)
 {
 	Ender_Js_Sm_Instance *thiz;
+	Ender_Item_Type type;
 
 	thiz = JS_GetPrivate(cx, obj);
-	ender_item_object_unref(thiz->i, thiz->o);
+	DBG("Destroying %s", ender_item_name_get(thiz->i));
+	type = ender_item_type_get(thiz->i);
+	switch (type)
+	{
+		case ENDER_ITEM_TYPE_OBJECT:
+		ender_item_object_unref(thiz->i, thiz->o);
+		break;
+
+		case ENDER_ITEM_TYPE_STRUCT:
+		free(thiz->o);
+		break;
+
+		default:
+		break;
+	}
+
 	ender_item_unref(thiz->i);
 	
 	free(thiz);
@@ -157,7 +242,8 @@ static void _ender_js_sm_instance_class_finalize(JSContext *cx, JSObject *obj)
 static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *obj, jsid id, jsval *vp)
 {
 	Ender_Js_Sm_Instance *thiz;
-	Ender_Item *i;
+	Ender_Item *i = NULL;
+	Ender_Item_Type type;
 	JSBool ret = JS_FALSE;
 	char *name;
 	char *conv_name;
@@ -180,7 +266,20 @@ static JSBool _ender_js_sm_instance_class_get_property(JSContext *cx, JSObject *
 	DBG("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
 	
 	/* for properties we do get the value */
-	i = _ender_js_object_prop_get(thiz->i, conv_name);
+	type = ender_item_type_get(thiz->i);
+	switch (type)
+	{
+		case ENDER_ITEM_TYPE_OBJECT:
+		i = _ender_js_object_prop_get(thiz->i, conv_name);
+		break;
+
+		case ENDER_ITEM_TYPE_STRUCT:
+		i = _ender_js_sm_instance_struct_field_get(thiz->i, conv_name);
+		break;
+
+		default:
+		break;
+	}
 	if (i)
 	{
 		Eina_Bool ok;
@@ -223,7 +322,8 @@ no_prop:
 static JSBool _ender_js_sm_instance_class_set_property(JSContext *cx, JSObject *obj, jsid id, JSBool strict, jsval *vp)
 {
 	Ender_Js_Sm_Instance *thiz;
-	Ender_Item *i;
+	Ender_Item *i = NULL;
+	Ender_Item_Type type;
 	JSBool ret = JS_FALSE;
 	char *name;
 	char *conv_name;
@@ -238,9 +338,23 @@ static JSBool _ender_js_sm_instance_class_set_property(JSContext *cx, JSObject *
 	conv_name = ender_utils_name_convert(name, ENDER_CASE_CAMEL, ENDER_NOTATION_ENGLISH,
 			ENDER_CASE_UNDERSCORE, ENDER_NOTATION_LATIN); 
 	DBG("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
+
+	type = ender_item_type_get(thiz->i);
+	switch (type)
+	{
+		case ENDER_ITEM_TYPE_OBJECT:
+		i = _ender_js_object_prop_get(thiz->i, conv_name);
+		break;
+
+		case ENDER_ITEM_TYPE_STRUCT:
+		i = _ender_js_sm_instance_struct_field_get(thiz->i, conv_name);
+		break;
+
+		default:
+		break;
+	}
 	
 	/* for properties we do get the value */
-	i = _ender_js_object_prop_get(thiz->i, conv_name);
 	if (i)
 	{
 		Eina_Bool ok;
@@ -277,7 +391,9 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 		uintN flags, JSObject **objp)
 {
 	Ender_Js_Sm_Instance *thiz;
+	Ender_Item_Type type;
 	Ender_Item *i;
+	Eina_Bool found = EINA_FALSE;
 	JSBool ret = JS_FALSE;
 	char *name;
 	char *conv_name;
@@ -309,33 +425,31 @@ static JSBool _ender_js_sm_instance_class_resolve(JSContext *cx, JSObject *obj, 
 			ENDER_CASE_UNDERSCORE, ENDER_NOTATION_LATIN); 
 	DBG("Looking for '%s' ('%s') in '%s'", name, conv_name, ender_item_name_get(thiz->i));
 
-	/* only resolve properties and methods */
-	i = _ender_js_object_prop_get(thiz->i, conv_name);
-	if (i)
+	type = ender_item_type_get(thiz->i);
+	switch (type)
 	{
-		DBG("Property '%s' found", ender_item_name_get(i));
-		*objp = obj;
-		ret = JS_TRUE;
-		ender_item_unref(i);
-		goto done;
+		case ENDER_ITEM_TYPE_OBJECT:
+		found = _ender_js_sm_instance_object_resolve(cx, obj, id, thiz->i, conv_name);
+		break;
+
+		case ENDER_ITEM_TYPE_STRUCT:
+		found = _ender_js_sm_instance_struct_resolve(cx, obj, id, thiz->i, conv_name);
+		break;
+		default:
+		break;
 	}
 
-	i = _ender_js_object_method_get(thiz->i, conv_name);
-	if (i)
+	if (!found)
 	{
-		JSObject *oi;
-
-		DBG("Method '%s' found", ender_item_name_get(i));
-		oi = ender_js_sm_item_create(cx, obj, i);
-		JS_DefinePropertyById(cx, obj, id, OBJECT_TO_JSVAL(oi), NULL,
-				NULL, 0);
+		WRN("No item '%s' found in '%s'", conv_name, ender_item_name_get(thiz->i));
+		JS_ReportError(cx, "Instance has no property '%s'", name);
+	}
+	else
+	{
 		*objp = obj;
 		ret = JS_TRUE;
-		goto done;
 	}
-	WRN("No item '%s' found in '%s'", conv_name, ender_item_name_get(thiz->i));
-	JS_ReportError(cx, "Instance has no property '%s'", name);
-done:
+
 	free(conv_name);
 no_conv:
 	free(name);
@@ -370,6 +484,9 @@ static JSClass _ender_js_sm_instance_class = {
 EAPI Eina_Bool ender_js_sm_is_instance(JSContext *cx, JSObject *obj)
 {
 	JSClass *klass;
+
+	if (!obj) return EINA_FALSE;
+	if (!cx) return EINA_FALSE;
 
 	klass = JS_GetClass(cx, obj);
 	if (strcmp(klass->name, "ender_js_sm_instance"))
